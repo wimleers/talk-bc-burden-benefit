@@ -1,0 +1,508 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Backwards Compatibility: Burden and Benefit </title>
+
+		<link rel="stylesheet" href="src/reveal.js/css/reveal.css">
+		<link rel="stylesheet" href="src/reveal.js/css/theme/black.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="src/reveal.js/lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'src/reveal.js/css/print/pdf.css' : 'src/reveal.js/css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section id="intro">
+					<h2>Backwards Compatibility</h2>
+					<h3>Burden &amp; Benefit</h3>
+					<hr>
+					<p>Wim Leers
+						<br>
+						<small style="vertical-align: baseline">
+							<a href="https://twitter.com/wimleers">@wimleers</a>
+							<br><a href="http://wimleers.com/">wimleers.com</a>
+							<br>
+							<br>Principal Software Engineer, OCTO, <img src="img/acquia.png" alt="Acquia logo" style="border:none;height:1em;margin:0;background:none;">
+					</small></p>
+				</section>
+
+				<section>
+					<section id="learned">
+						<p>Things I learned <small>so I know slightly better what I do not know</small></p>
+						<aside class="notes">
+							I'm mostly talking from the perspective of Drupal core. Drupal core has many APIs. It sets examples for contrib to follow. So this is primarily a talk about patterns in Drupal core. Still, I also bring up several concrete contrib examples, so this should be helpful to both core developers <em>and</em> those building lots of actual D8 projects.
+						</aside>
+					</section>
+					<section id="blame-me">
+						<p>I'm responsible for the 👍 &amp; 👎.</p>
+						<aside class="notes">
+							Pretty much all examples you're about to see are in Drupal core components and Drupal contrib projects I maintain. Both the wins and the fails.
+						</aside>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<p>My analysis in a nutshell</p>
+					</section>
+					<section id="overview">
+						<p><img src="img/drupal wordmark.svg" style="background:none;border:none;margin-bottom:-0.25em" height="50em"> can be used for anything!</p>
+						<div class="fragment">
+							<p>⬇</p>
+							<p>All code must have an API to be generic &amp; overridable <br><small>but not enough time to carefully design every API</small></p>
+						</div>
+						<div class="fragment">
+							<p>⬇</p>
+							<p>Overengineered<br><small>… yet underengineered!</small></p>
+						</div>
+						<div class="fragment">
+							<p>⬇</p>
+							<p>BC = nightmare. Let's get better.</p>
+						</div>
+					</section>
+				</section>
+
+				<section id="bc-benefit">
+					<p>BC = promise of updating without problems</p>
+					<p><small><a href="http://buytaert.net/making-drupal-upgrades-easy-forever">buytaert.net/making-drupal-upgrades-easy-forever</a></small></p>
+					<aside class="notes">
+						In other words: everything continues to work after you update to the latest version. This is obviously a huge benefit to site builders, Drupal developers, agencies and so on: maintenance becomes trivial/cheap, and new capabilities can be opted into.
+					</aside>
+				</section>
+
+				<section>
+					<section id="overengineered">
+						<h3>Overengineered</h3>
+					</section>
+					<section id="overengineered-why-so-many">
+						<p style="text-align: left;">Q: Why does Drupal have so many APIs?<br>
+						A: Optimized for targeted overrides<br>&nbsp;&nbsp;&nbsp;&nbsp;⇒ granular APIs<br>&nbsp;&nbsp;&nbsp;&nbsp;⇒ many, many APIs</p>
+						<aside class="notes">
+							Drupal is built to provide a "sane default" for everything: from configuration to user interface. So every site needs lots of small tweaks. Those tweaks are targeted overrides. To make those tweaks simple, we must provide granular APIs. Granular APIs implies that one unavoidably ends up with "a shitton of APIs".
+						</aside>
+					</section>
+					<section id="overengineered-analogy">
+						<ul>
+							<li>forest ~ Drupal</li>
+							<li>tree ~ Drupal component</li>
+							<li>branch ~ Drupal component feature</li>
+							<li>leaf ~ Drupal component feature method</li>
+						</ul>
+						<hr>
+						<p>Drupal allows you to replace a particular leaf.<br>Others require replacing a branch or even tree.</p>
+					</section>
+					<section id="overengineered-types-of-apis">
+						<p>Drupal has 3 types of APIs</p>
+						<dl>
+							<dt>Explicit APIs</dt>
+							<dd>hooks, plugins, tagged services</dd>
+							<dt>Implicit APIs</dt>
+							<dd>markup structure, render array structure, call order <small>(weights, priorities)</small></dd>
+							<dt>Accidental APIs</dt>
+							<dd>many <small>(most?)</small> interfaces (and even classes!)</dd>
+						</dl>
+					</section>
+					<section id="overengineered-annotated-afterthought">
+						<p><a href="https://www.drupal.org/core/d8-bc-policy">d.o/core/d8-bc-policy</a>: <code>@api</code> vs <code>@internal</code></p>
+						<img src="img/d8-bc-policy.png" height="500em">
+						<aside class="notes">
+							Very late in the D8 cycle (6 months leading up to 8.0.0), we realized we had added boatloads of APIs. Because interfaces are perceived as APIs. But many of them were not really designed to be APIs. So we started looking at marking interfaces, base classes etc as @api or @internal. To make them explicitly APIs, or explicitly NOT APIs. Note that all policies around this are STILL not yet decided!
+						</aside>
+					</section>
+					<section data-background="#b5533c" data-transition="zoom">
+						<p>But in Drupal core…</p>
+						<dl>
+							<dt><code>@api</code></dt>
+							<dd>0 occurrences</dd>
+							<dt><code>@internal</code></dt>
+							<dd>53 occurrences</dd>
+						</dl>
+						<p>99% "undocumented"<br>⇒ 99% considered API</p>
+						<aside class="notes">
+							Of course, if Drupal core isn't even really doing this, it's fair to assume Drupal contrib isn't doing this at all.
+						</aside>
+					</section>
+				</section>
+
+				<section>
+					<section id="compare">
+						<h3>APIs elsewhere?</h3>
+						<aside class="notes">
+							Is Drupal really doing this differently compared to other CMS/CMF software?
+						</aside>
+					</section>
+					<section id="compare-wordpress">
+						<img src="img/compare-apis/WordPress.png" height="600em" alt="Screenshot listing WordPress APIs">
+					</section>
+					<section id="compare-django">
+						<img src="img/compare-apis/Django.png" height="600em" alt="Screenshot listing Django APIs">
+					</section>
+					<section data-background="#b5533c" data-background-transition="zoom">
+						<p>The API assumption</p>
+						<ul>
+							<li>Drupal: X is API</li>
+							<li>Others: X is NOT an API</li>
+						</ul>
+						<aside class="notes">
+							In Drupal, we have a costly default assumption.
+						</aside>
+					</section>
+				</section>
+
+				<section>
+					<section id="underengineered-accidental-api" data-background-image="img/gif/did-i-do-that.gif">
+						<h3>Underengineered</h3>
+						<p>Part 1: Accidental API</p>
+					</section>
+					<section id="underengineered-accidental-api-example">
+						<p>Example of an <q>accidental API</p>
+						<ol>
+							<li>D8: OOPify everything</li>
+							<li><q>Every class must have an interface</q></li>
+							<li>Interfaces coupled to the sole implementation</li>
+							<li>BC broken by bugfixes &amp; new implementations</li>
+						</ol>
+						<aside class="notes">
+							This is what Drupal 8 did in the years 2012, 2013 and 2014. It's what contrib has also been doing to a large extent.
+						</aside>
+					</section>
+					<section id="underengineered-accidental-api-consequences">
+						<p><small>Issue <a href="https://www.drupal.org/node/2266809">#2266809</a>: Make QuickEditEntityFieldAccessCheck::access() use the $account that's passed in</small></p>
+						<pre><code class="diff">    * @param string $field_name
+    *   The field name.
++   * @param \Drupal\Core\Session\AccountInterface $account
++   *   The user for which to check access.
+    *
+    * @return \Drupal\Core\Access\AccessResultInterface
+    *   The access result.
+    */
+-  public fn accessEditEntityField($entity, $field_name);
++  public fn accessEditEntityField($entity, $field_name, AccountInterface $account);
+
+ }
+</code></pre>
+						<p><small>(Introduced by yours truly in <q><a href="https://www.drupal.org/node/1824500">#1824500</a>: In-place editing for Fields</q> on Dec 21, 2012.<br>Suffering the consequences &gt;4 years later.)</small></p>
+						<aside class="notes">
+							This is just a bugfix. But because we made this into an API, it's also a BC break. So now instead of just fixing the bug, we must not only update this accidental API, we must also add a BC layer that is supported until Drupal 9.0.0. This one is so trivial it won't need test coverage, but usually we then also require test coverage to ensure BC is not broken.
+						</aside>
+					</section>
+					<section data-background="#b5533c">
+						<p>Poorly designed APIs make BC very difficult</p>
+						<aside class="notes">
+							Of course, Drupal's tendency to have many, many un(der)designed granular APIs means this is a widespread problem.
+						</aside>
+					</section>
+					<section data-background="#4d7e65" data-background-transition="zoom">
+						<h3>API support cost</h3>
+						<blockquote>Prefer duplication over the wrong abstraction</blockquote>
+						<p>API when:</p>
+						<ol>
+							<li>data to prove soundness of API design</li>
+							<li>sufficient demand</li>
+						</ol>
+						<aside class="notes">
+							APIs are costly! Not providing an API for every single thing and instead only making it possible to override the default implementation puts the maintenance burden on the party creating customizations. Most concrete implementations change only in minor ways. Customizations need functional test coverage anyway. So a BC break is easily detected, and usually easily fixed.
+							This allows us to have fewer APIs. APIs are costly to support!
+							Yes, overridable classes provide less BC guarantees: the duplicated code may need to be updated too (e.g. for a security fix). But it also ensures we have no more accidental APIs.
+						</aside>
+					</section>
+					<section data-background="#4d7e65" data-background-transition="zoom">
+						<h3>API discoverability &amp; complexity</h3>
+						<p>Little work + high complexity (granular APIs)</p>
+						<p><em>vs</em></p>
+						<p>More work + low complexity (duplication)</p>
+						<aside class="notes">
+							All of us have at some point had difficulty finding how exactly to override <em>this one small thing</em>… because there are so many APIs. There are 1000s of things you can override on almost every request.
+						</aside>
+					</section>
+				</section>
+
+				<section>
+					<section data-background-image="img/gif/3d-graph.gif">
+						<h3>Underengineered</h3>
+						<p>Part 2: orthogonality</p>
+					</section>
+					<section>
+						<figure>
+							<blockquote>[…] how a relatively small number of components can be combined in a relatively small number of ways to get the desired results. It is associated with simplicity; the more orthogonal the design, the fewer exceptions. This makes it easier to learn […]</blockquote>
+							<figcaption><small><a href="https://en.wikipedia.org/wiki/Orthogonality_(programming)">https://en.wikipedia.org/wiki/Orthogonality_(programming)</a></small></figcaption>
+						</figure>
+					</section>
+					<section>
+						<h4>API dependencies</h4>
+						<ul>
+							<li>Automated Cron: 5 <small>(Form + Config + EventSub + Cron + State)</small></li>
+							<li>BigPipe: 5 <small>(Render + AJAX + Cache + EventSub + Req/Resp)</small></li>
+							<li>Entity API uses >10 APIs</li>
+						</ul>
+						<blockquote class="fragment">⇒ using Entity API === using >10 APIs!</blockquote>
+						<aside class="notes">
+							It's understandable that simpler modules (like Automated Cron and BigPipe) can use a more limited set of APIs. It's understandable that the Entity API uses so many other APIs: entities are at the heart of Drupal.
+							But it also means that undeniably things can become very complex very quickly when debugging a problem in Entity API. You need to know/understand many other APIs to be successful.
+						</aside>
+					</section>
+					<section>
+						<h4>API cascades</h4>
+						<p><code>NodeInterface $node</code></p>
+						<pre><code>1. NodeInterface extends ContentEntityInterface, EntityChangedInterface, EntityOwnerInterface, RevisionLogInterface, EntityPublishedInterface
+2. ContentEntityInterface extends \Traversable, FieldableEntityInterface, RevisionableInterface, TranslatableInterface
+3. FieldableEntityInterface extends EntityInterface
+4. EntityInterface extends AccessibleInterface, CacheableDependencyInterface, RefinableCacheableDependencyInterface
+</code></pre>
+						<p><code>FieldableEntityInterface::get()</code> aka <code>$node->get($field_name)</code></p>
+						<pre><code>1. FieldItemListInterface extends ListInterface, AccessibleInterface
+2. ListInterface extends TraversableTypedDataInterface, \ArrayAccess, \Countable
+3. TraversableTypedDataInterface extends TypedDataInterface, \Traversable
+4. TypedDataInterface</code></pre>
+					</section>
+					<section data-background-image="img/gif/alice.gif">
+						<p>AKA <q>a rabbit hole</q></p>
+					</section>
+					<section>
+						<h4>Rabbit hole example</h4>
+						<ul>
+							<li><code>REST</code> module: Taxonomy term REST responses don't list parent term, because:</li>
+							<li><code>Taxonomy</code> module does not define <code>parent</code> the proper way in <code>Entity</code> API, but cannot be fixed because:</li>
+							<li><code>Views</code> module breaks for multi-value base Fields on Entities</li>
+						</ul>
+						<aside class="notes">
+							This particular example: <a href="https://www.drupal.org/node/2543726">https://www.drupal.org/node/2543726</a>.<br>
+							Almost every API has forgotten/untested edge cases!
+						</aside>
+					</section>
+					<section data-background-image="img/gif/jump-hole.gif">
+						<p>AKA <q>a <u>deep</u> rabbit hole</q></p>
+					</section>
+					<section data-background="#b5533c" data-background-transition="zoom">
+						<blockquote>Massive composition &amp; long inheritance chains require massive knowledge</blockquote>
+						<aside class="notes">
+							I don't have a solution for this; we have good reasons for all of this, but it still undeniably makes things very hard to understand, debug, build upon.
+						</aside>
+					</section>
+				</section>
+
+				<section>
+					<section data-background-image="img/gif/square-round.gif">
+						<h3>Underengineered</h3>
+						<p>Part 3: assumptions</p>
+					</section>
+					<section>
+						<ol>
+							<li>Drupal core does <code>X</code></li>
+							<li>Module/API <em>Foo</em> assumes <code>X</code></li>
+							<li>Install contrib module <em>Bar</em>: <del><code>X</code></del> ⇒ <code>Y</code></li>
+							<li>😭</li>
+						</ol>
+						<aside class="notes">
+							For example, N instead of 1, or slightly different render array structure.
+						</aside>
+					</section>
+					<section>
+						<figure>
+							<img src="img/assumptions/http2_server_push project page.png">
+							<figcaption>Zero config, no UI!</figcaption>
+						</figure>
+					</section>
+					<section>
+						<p>Breaks when <code>advagg</code> is installed 😭</p>
+					</section>
+					<section>
+						<pre><code class="diff">     $request = $this->requestStack->getCurrentRequest();
+     $link_headers = $request->attributes->get('http2_server_push_link_headers', []);
+     foreach ($elements as &$element) {
++      if (!static::isLinkRelStylesheet($element)) {
++        continue;
++      }
++
+       // Locally served CSS files that are sent to all browsers can be pushed.
+-      if ($element['#tag'] === 'link' && $element['#browsers']['!IE'] === TRUE && $element['#browsers']['IE'] === TRUE && $element['#attributes']['href'][0] === '/' && $element['#attributes']['href'][1] !== '/') {
++      if (isset($element['#attributes']['href']) && static::hasRootRelativeUrl($element, 'href') && static::isUnconditional($element)) {
+         $link_header_value = '<' . $element['#attributes']['href'] . '>; rel=preload; as=style';
+         $link_headers[] = $link_header_value;
+</code></pre>
+					</section>
+					<section data-background="#4d7e65" data-background-transition="zoom">
+						<blockquote>Make assumptions explicit</blockquote>
+						<p><em>even better:</em></p>
+						<blockquote>Test assumptions</blockquote>
+						<aside class="notes">
+							Explicitly testing assumptions means you are notified immediately when assumptions break… which includes subtle BC breaks.
+						</aside>
+					</section>
+				</section>
+
+				<section>
+					<section data-background-image="img/gif/duplo-train.gif">
+						<h3>Extreme one end</h3>
+						<p>REST + Serialization</p>
+					</section>
+					<section>
+						<p>REST in Drupal 8.0.0</p>
+						<ul>
+							<li>Only thin happy path test coverage </li>
+							<li>Slightest mistake ⇒ incomprehensible errors 😩😨</li>
+					</section>
+					<section>
+						<p>REST module: what + API?</p>
+						<ol>
+							<li>Server side: define more REST resource plugins (PHP), deploy some (config)</li>
+							<li>Client side: HTTP API, so: URL + request/response headers/body</li>
+						</ol>
+						<aside class="notes">
+							Two problems: 1) on the server side, you can use APIs other than the REST API's API to modify the REST API (yes this is confusing). E.g. the routing API.<br>
+							More importantly: 2) when dealing with request/response bodies: <em>what is the API?</em>
+						</aside>
+					</section>
+					<section>
+						<p>Wim in 2016</p>
+						<ul>
+							<li>bugfixing<span class="fragment">…😐</span><span class="fragment">…😩</span><span class="fragment">…😡</span></li>
+							<li class="fragment">comprehensive test coverage testing every mistake an end user might make 😵 <small>⇒ uncovered dozens more bugs…</small></li>
+							<li class="fragment">bugfixing++ 🙂</li>
+						</ul>
+						<p class="fragment">No more incomprehensible errors, nor BC breaks!</p>
+						<aside class="notes">
+							From snail-pace bugfixing to much faster bugfixing thanks to comprehensive test coverage (which was a 190 KB test-only patch!), with much better reliability, and hugely reduced risk of introducing BC breaks.
+						</aside>
+					</section>
+					<section>
+						<p>😵 "serialization gaps" 😵</p>
+						<ul>
+							<li><a href="https://www.drupal.org/node/2751325">#2751325</a>: All serialized values are strings, should be integers/booleans when appropriate</li>
+							<li><a href="https://www.drupal.org/node/2543726">#2543726</a>: Expose $term->parent in serialized taxonomy terms</li>
+							<li>… 6 more in <a href="https://www.drupal.org/node/2852860">#2852860</a>.</li>
+						</ul>
+						<blockquote class="fragment">Response === API ⇒ extreme care</blockquote>
+						<aside class="notes">
+							The API is not clearly delineated, nor can it be. This is a BC nightmare.
+						</aside>
+					</section>
+					<section data-background="#4d7e65" data-background-transition="zoom">
+						<blockquote>When API surface is great, test coverage must be greater</blockquote>
+						<p><em>and</em></p>
+						<blockquote>Clearly define what is an API (and hence BC guaranteed)</blockquote>
+					</section>
+				</section>
+
+				<section>
+					<section data-background-image="img/gif/lego-strandbeest.gif">
+						<h3>Extreme other end</h3>
+						<p>BigPipe + Dynamic Page Cache</p>
+					</section>
+					<section>
+						<p>Dynamic Page Cache: what + API?</p>
+						<ul>
+							<li>Reverse proxy <small>(transparently, much like cache)</small></li>
+							<li>Inspects metadata (on Responses) ⇒ act or not</li>
+							<li><code>X-Drupal-Dynamic-Cache</code> response header</li>
+							<li>No API!</li>
+						</ul>
+					</section>
+					<section>
+						<figure>
+							<img src="img/extremes/dynamic_page_cache.png">
+							<figcaption><small>1 task + 3 minor (clean-up) bugs + 1 support request.<br>5 issues total for millions of responses accelerated!</small></figcaption>
+						</figure>
+					</section>
+					<section>
+						<p>BigPipe: what + API?</p>
+						<ul>
+							<li>Alternative HTML rendering+delivery technique</li>
+							<li>Inspects metadata (on Responses) ⇒ act or not</li>
+							<li><code>Surrogate-Control</code> response header</li>
+							<li>No API!</li>
+							<li>Critical functionality ⇒ vast test coverage!</li>
+						</ul>
+					</section>
+					<section>
+						<figure>
+							<img src="img/extremes/big_pipe.png">
+							<figcaption><small>Explicitly functionality, not API. <code>@internal</code> all the things!<br>
+							Handful of bugs over the course of a year. 0 bugs last 6 months.</small></figcaption>
+						</figure>
+					</section>
+					<section data-background="#4d7e65" data-background-transition="zoom">
+						<blockquote>Try hard to <u>not</u> provide an API</blockquote>
+						<p><small>(Then BC is kept as long as functionality works!)</small></p>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<p>Contrib: organic feature growth</p>
+					</section>
+					<section data-background-image="img/gif/you-got-it.gif">
+					</section>
+					<section>
+						<p>Hierarchical Select 7.x-3.0</p>
+						<a href="img/contrib/hierarchical_select 7.x-3.0.png"><img src="img/contrib/hierarchical_select 7.x-3.0.png" height="600em"></a>
+						<aside class="notes">
+							This is what happens when you implement <em>every</em> feature request and make every single thing configurable through the UI.
+						</aside>
+					</section>
+					<section>
+						<p>CDN 7.x-2.9</p>
+						<img src="img/contrib/cdn 7.x-2.9.png" height="600em">
+						<aside class="notes">
+							I made the same mistake for the CDN module. It looks simpler, but it isn't: part of it is hidden in that "Other" tab. And you were forced to use a particular syntax in those textareas. Tough luck if you didn't get the syntax right.
+						</aside>
+					</section>
+					<section data-background-image="img/gif/nightmare.gif"></section>
+					<section>
+						<p>CDN 8.x-3.0</p>
+						<img src="img/contrib/cdn 8.x-3.0.png">
+						<aside class="notes">
+							I learned my lesson. Zero bug reports 3.5 months after the first stable release. Compared to dozens before.<br>
+							Many choices that reduce risk: far simpler UI (because far fewer things to configure — sane defaults for many things), always use protocol-relative URLs to not need different results for HTTP vs HTTPS, far better test coverage, and so on.
+						</aside>
+					</section>
+				</section>
+
+				<section id="conclusion" data-background="#4d7e65" data-background-transition="zoom">
+					<blockquote>Functionality first, API later <br><small>or <code>@internal</code> first, <code>@api</code> later</small></blockquote>
+					<blockquote>Prefer duplication over the wrong abstraction</blockquote>
+					<blockquote>Test 1)&nbsp;critical path, 2)&nbsp;edge cases, 3)&nbsp;<u>assumptions</u><br><small>(especially for APIs)</blockquote>
+					<p>🙇</p>
+					<p><a href="http://wimleers.com/talk/bc-burden-benefit">wimleers.com/talk/bc-burden-benefit</a></p>
+					<aside class="notes">
+						1) Start with providing the functionality that works for the 80%.<br>
+						2) Add API when confident about design, and sufficient demand. With demand but not confidence, insist on duplication.<br>
+						3) Assumptions are everywhere. Think about every possible execution branch. Cheaper to write tests now than break BC/write upgrade path tests later.
+					</aside>
+				</section>
+
+			</div>
+		</div>
+
+		<script src="src/reveal.js/lib/js/head.min.js"></script>
+		<script src="src/reveal.js/js/reveal.js"></script>
+
+		<script>
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				history: true,
+				showNotes: !window.location.search.match( /no-notes/gi ),
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'src/reveal.js/plugin/markdown/marked.js' },
+					{ src: 'src/reveal.js/plugin/markdown/markdown.js' },
+					{ src: 'src/reveal.js/plugin/notes/notes.js', async: true },
+					{ src: 'src/reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>
