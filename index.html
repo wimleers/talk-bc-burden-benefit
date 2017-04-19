@@ -169,7 +169,6 @@
 						<p>Part 1: Accidental API</p>
 					</section>
 					<section id="underengineered-accidental-api-example">
-						<p>Example of an <q>accidental API</p>
 						<ol>
 							<li>D8: OOPify everything</li>
 							<li><q>Every class must have an interface</q></li>
@@ -181,6 +180,7 @@
 						</aside>
 					</section>
 					<section id="underengineered-accidental-api-consequences">
+						<h4>Example</h4>
 						<p><small>Issue <a href="https://www.drupal.org/node/2266809">#2266809</a>: Make QuickEditEntityFieldAccessCheck::access() use the $account that's passed in</small></p>
 						<pre><code class="diff">    * @param string $field_name
     *   The field name.
@@ -269,24 +269,7 @@
 3. TraversableTypedDataInterface extends TypedDataInterface, \Traversable
 4. TypedDataInterface</code></pre>
 					</section>
-					<section data-background-image="img/gif/alice.gif">
-						<p>AKA <q>a rabbit hole</q></p>
-					</section>
-					<section>
-						<h4>Rabbit hole example</h4>
-						<ul>
-							<li><code>REST</code> module: Taxonomy term REST responses don't list parent term, because:</li>
-							<li><code>Taxonomy</code> module does not define <code>parent</code> the proper way in <code>Entity</code> API, but cannot be fixed because:</li>
-							<li><code>Views</code> module breaks for multi-value base Fields on Entities</li>
-						</ul>
-						<aside class="notes">
-							This particular example: <a href="https://www.drupal.org/node/2543726">https://www.drupal.org/node/2543726</a>.<br>
-							Almost every API has forgotten/untested edge cases!
-						</aside>
-					</section>
-					<section data-background-image="img/gif/jump-hole.gif">
-						<p>AKA <q>a <u>deep</u> rabbit hole</q></p>
-					</section>
+					<section data-background-image="img/gif/jump-hole.gif"></section>
 					<section data-background="#b5533c" data-background-transition="zoom">
 						<blockquote>Massive composition &amp; long inheritance chains require massive knowledge</blockquote>
 						<aside class="notes">
@@ -357,29 +340,6 @@
 							<li>Slightest mistake ⇒ incomprehensible errors 😩😨</li>
 					</section>
 					<section>
-						<p>REST module: what + API?</p>
-						<ol>
-							<li>Server side: define more REST resource plugins (PHP), deploy some (config)</li>
-							<li>Client side: HTTP API, so: URL + request/response headers/body</li>
-						</ol>
-						<aside class="notes">
-							Two problems: 1) on the server side, you can use APIs other than the REST API's API to modify the REST API (yes this is confusing). E.g. the routing API.<br>
-							More importantly: 2) when dealing with request/response bodies: <em>what is the API?</em>
-						</aside>
-					</section>
-					<section>
-						<p>Wim in 2016</p>
-						<ul>
-							<li>bugfixing<span class="fragment">…😐</span><span class="fragment">…😩</span><span class="fragment">…😡</span></li>
-							<li class="fragment">comprehensive test coverage testing every mistake an end user might make 😵 <small>⇒ uncovered dozens more bugs…</small></li>
-							<li class="fragment">bugfixing++ 🙂</li>
-						</ul>
-						<p class="fragment">No more incomprehensible errors, nor BC breaks!</p>
-						<aside class="notes">
-							From snail-pace bugfixing to much faster bugfixing thanks to comprehensive test coverage (which was a 190 KB test-only patch!), with much better reliability, and hugely reduced risk of introducing BC breaks.
-						</aside>
-					</section>
-					<section>
 						<p>😵 "serialization gaps" 😵</p>
 						<ul>
 							<li><a href="https://www.drupal.org/node/2751325">#2751325</a>: All serialized values are strings, should be integers/booleans when appropriate</li>
@@ -404,29 +364,10 @@
 						<p>BigPipe + Dynamic Page Cache</p>
 					</section>
 					<section>
-						<p>Dynamic Page Cache: what + API?</p>
-						<ul>
-							<li>Reverse proxy <small>(transparently, much like cache)</small></li>
-							<li>Inspects metadata (on Responses) ⇒ act or not</li>
-							<li><code>X-Drupal-Dynamic-Cache</code> response header</li>
-							<li>No API!</li>
-						</ul>
-					</section>
-					<section>
 						<figure>
 							<img src="img/extremes/dynamic_page_cache.png">
 							<figcaption><small>1 task + 3 minor (clean-up) bugs + 1 support request.<br>5 issues total for millions of responses accelerated!</small></figcaption>
 						</figure>
-					</section>
-					<section>
-						<p>BigPipe: what + API?</p>
-						<ul>
-							<li>Alternative HTML rendering+delivery technique</li>
-							<li>Inspects metadata (on Responses) ⇒ act or not</li>
-							<li><code>Surrogate-Control</code> response header</li>
-							<li>No API!</li>
-							<li>Critical functionality ⇒ vast test coverage!</li>
-						</ul>
 					</section>
 					<section>
 						<figure>
@@ -441,42 +382,11 @@
 					</section>
 				</section>
 
-				<section>
-					<section>
-						<p>Contrib: organic feature growth</p>
-					</section>
-					<section data-background-image="img/gif/you-got-it.gif">
-					</section>
-					<section>
-						<p>Hierarchical Select 7.x-3.0</p>
-						<a href="img/contrib/hierarchical_select 7.x-3.0.png"><img src="img/contrib/hierarchical_select 7.x-3.0.png" height="600em"></a>
-						<aside class="notes">
-							This is what happens when you implement <em>every</em> feature request and make every single thing configurable through the UI.
-						</aside>
-					</section>
-					<section>
-						<p>CDN 7.x-2.9</p>
-						<img src="img/contrib/cdn 7.x-2.9.png" height="600em">
-						<aside class="notes">
-							I made the same mistake for the CDN module. It looks simpler, but it isn't: part of it is hidden in that "Other" tab. And you were forced to use a particular syntax in those textareas. Tough luck if you didn't get the syntax right.
-						</aside>
-					</section>
-					<section data-background-image="img/gif/nightmare.gif"></section>
-					<section>
-						<p>CDN 8.x-3.0</p>
-						<img src="img/contrib/cdn 8.x-3.0.png">
-						<aside class="notes">
-							I learned my lesson. Zero bug reports 3.5 months after the first stable release. Compared to dozens before.<br>
-							Many choices that reduce risk: far simpler UI (because far fewer things to configure — sane defaults for many things), always use protocol-relative URLs to not need different results for HTTP vs HTTPS, far better test coverage, and so on.
-						</aside>
-					</section>
-				</section>
-
 				<section id="conclusion" data-background="#4d7e65" data-background-transition="zoom">
 					<blockquote>Functionality first, API later <br><small>or <code>@internal</code> first, <code>@api</code> later</small></blockquote>
 					<blockquote>Prefer duplication over the wrong abstraction</blockquote>
 					<blockquote>Test 1)&nbsp;critical path, 2)&nbsp;edge cases, 3)&nbsp;<u>assumptions</u><br><small>(especially for APIs)</small></blockquote>
-					<p>🙇</p>
+					<p>🤐</p>
 					<p><a href="http://wimleers.com/talk/bc-burden-benefit">wimleers.com/talk/bc-burden-benefit</a></p>
 					<aside class="notes">
 						1) Start with providing the functionality that works for the 80%.<br>
