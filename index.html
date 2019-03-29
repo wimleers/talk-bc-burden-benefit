@@ -27,8 +27,7 @@
 			<div class="slides">
 				<section id="intro" data-state="baltimore-city">
 					<img src="theme/img/baltimore-logo.svg" class="logo" alt="DrupalCon Baltimore 2017" style="margin:0"/>
-					<h2>Backwards Compatibility</h2>
-					<h3>Burden &amp; Benefit</h3>
+					<h2>Backwards Compatibility<br>🆚<br>Evolvability<br>🆚<br>Maintainability</h2>
 					<hr>
 					<p>Wim Leers
 						<br>
@@ -36,7 +35,7 @@
 							<a href="https://twitter.com/wimleers">@wimleers</a>
 							<br><a href="http://wimleers.com/">wimleers.com</a>
 							<br>
-							<br>Principal Software Engineer, OCTO, <img src="img/acquia.png" alt="Acquia logo" style="border:none;height:1em;margin:0;background:none;">
+							<br>Principal Software Engineer, Drupal Acceleration Team ("OCTO"), <img src="img/acquia.png" alt="Acquia logo" style="border:none;height:1em;margin:0;background:none;">
 					</small></p>
 				</section>
 
@@ -53,13 +52,13 @@
 							Pretty much all examples you're about to see are in Drupal core components and Drupal contrib projects I maintain. Both the wins and the fails.
 						</aside>
 					</section>
+					<section>
+						Drupal &amp; d.o infrastructure
+					</section>
 				</section>
 
 				<section>
-					<section>
-						<p>My analysis in a nutshell</p>
-					</section>
-					<section id="overview">
+					<section id="in-a-nutshell">
 						<p><img src="img/drupal wordmark.svg" style="background:none;border:none;margin-bottom:-0.25em" height="50em"> can be used for anything!</p>
 						<div class="fragment">
 							<p>⬇</p>
@@ -74,14 +73,98 @@
 							<p>BC = nightmare. Let's get better.</p>
 						</div>
 					</section>
+					<section data-background="#4d7e65" data-background-transition="zoom">
+						<p>We <em>have</em> gotten better! 🥳</p>
+					</section>
 				</section>
+
 
 				<section id="bc-benefit">
 					<p>BC = promise of updating without problems</p>
 					<p><small><a href="http://buytaert.net/making-drupal-upgrades-easy-forever">buytaert.net/making-drupal-upgrades-easy-forever</a></small></p>
+					
+					<ol>
+						<li class="fragment">Promise to not breaking existing callers.</li>
+						<li class="fragment">Notify existing callers of changed code.</li>
+					</ol>
 					<aside class="notes">
 						In other words: everything continues to work after you update to the latest version. This is obviously a huge benefit to site builders, Drupal developers, agencies and so on: maintenance becomes trivial/cheap, and new capabilities can be opted into.
 					</aside>
+				</section>
+
+				<section id="bc-policy">
+					<section id="bc-policy-2017">
+						<div style="position: fixed;transform:rotate(-30deg);-webkit-transform:rotate(-30deg);background-color:gray;padding:0.2em">2017</div>
+						<p><a href="https://www.drupal.org/core/d8-bc-policy">d.o/core/d8-bc-policy</a>: <code>@api</code> vs <code>@internal</code></p>
+						<img src="img/d8-bc-policy.png" height="500em" style="border:0">
+						<aside class="notes">
+							Very late in the D8 cycle (6 months leading up to 8.0.0), we realized we had added boatloads of APIs. Because interfaces are perceived as APIs. But many of them were not really designed to be APIs. So we started looking at marking interfaces, base classes etc as @api or @internal. To make them explicitly APIs, or explicitly NOT APIs. Note that all policies around this are STILL not yet decided!
+						</aside>
+					</section>
+					<section data-background="#b5533c" data-transition="zoom">
+						<div style="position: fixed;transform:rotate(-30deg);-webkit-transform:rotate(-30deg);background-color:gray;padding:0.2em">2017</div>
+						<p>But in Drupal core…</p>
+						<dl>
+							<dt><code>@api</code></dt>
+							<dd>0 occurrences</dd>
+							<dt><code>@internal</code></dt>
+							<dd>53 occurrences</dd>
+						</dl>
+						<p>99% "undocumented"<br>⇒ 99% considered API</p>
+						<aside class="notes">
+							Of course, if Drupal core isn't even really doing this, it's fair to assume Drupal contrib isn't doing this at all.
+						</aside>
+					</section>
+					<section id="bc-policy-2019">
+						<div style="position: fixed;transform:rotate(-30deg);-webkit-transform:rotate(-30deg);background-color:white;padding:0.2em;color:black">2019</div>
+						<p>Two years later:</p>
+						<img src="img/d8-bc-policy-2019-03.png" height="500em" style="border:0">
+						<aside class="notes">
+							<a href="https://www.drupal.org/node/2562903/revisions/view/10168259/11328169">18 edits later</a>, it looks much better already! Progress!
+						</aside>
+					</section>
+					<section data-background="#4d7e65" data-background-transition="zoom">
+						<div style="position: fixed;transform:rotate(-30deg);-webkit-transform:rotate(-30deg);background-color:white;padding:0.2em;color:black">2019</div>
+						<ol style="width: 70%">
+							<li>More code considered "internal APIs"</li>
+							<li class="fragment"><blockquote style="width: 100%">For public APIs, the deprecation process is a is a requirement; <u class="fragment">for internal APIs, we provide BC and deprecation where possible</u>, <span class="fragment">but might make breaking changes in situations where BC is not possible or has negative consequences</span>.</blockquote></li>
+						</ol>
+						<aside class="notes">
+							We now have a workable process, that still leaves a burden, but with clear rules, and for good reasons. Even for "internal" APIs best-effort BC must be provided.
+						</aside>
+					</section>
+				</section>
+				
+				<section id="deprecations">
+					<section id="deprecations-policy-tagging-tracking">
+						<p><code>@deprecated</code></h3>
+					</section>
+					<section id="deprecation-policy-2017" data-background="#b5533c" data-transition="zoom">
+						<div style="position: fixed;transform:rotate(-30deg);-webkit-transform:rotate(-30deg);background-color:gray;padding:0.2em">2017</div>
+						<p><code>404</code></p>
+						<aside class="notes">
+							Did not exist!
+						</aside>
+					</section>
+					<section id="deprecation-policy-2019" data-background="#4d7e65" data-background-transition="zoom">
+						<div style="position: fixed;transform:rotate(-30deg);-webkit-transform:rotate(-30deg);background-color:white;padding:0.2em;color:black">2019</div>
+						<p>Two years later:</p>
+						<img src="img/d8-deprecation-policy-2019-03.png" height="500em" style="border:0">
+						<aside class="notes">
+							<a href="https://www.drupal.org/node/2562903/revisions/view/10168259/11328169">18 edits later</a>, it looks much better already! Progress!
+						</aside>
+					</section>
+					<section>
+						<p><a href="https://www.drupal.org/project/coding_standards/issues/3024461">#3024461</a>: <q style="quotes:initial">Adopt consistent deprecation format for core and contrib deprecation messages</q><br>⬇</p>
+						<figure>
+							<img src="img/d9-readiness.png" height="400em" style="border:0;margin-top:0">
+							<figcaption><a href="https://www.drupal.org/project/upgrade_status">d.o/project/upgrade_status</a>!</small></figcaption>
+						</figure>
+					</section>
+				</section>
+				
+				<section id="challenges">
+					<p>Challenges</p>
 				</section>
 
 				<section>
@@ -115,26 +198,6 @@
 							<dt>Accidental APIs</dt>
 							<dd>many <small>(most?)</small> interfaces (and even classes!)</dd>
 						</dl>
-					</section>
-					<section id="overengineered-annotated-afterthought">
-						<p><a href="https://www.drupal.org/core/d8-bc-policy">d.o/core/d8-bc-policy</a>: <code>@api</code> vs <code>@internal</code></p>
-						<img src="img/d8-bc-policy.png" height="500em">
-						<aside class="notes">
-							Very late in the D8 cycle (6 months leading up to 8.0.0), we realized we had added boatloads of APIs. Because interfaces are perceived as APIs. But many of them were not really designed to be APIs. So we started looking at marking interfaces, base classes etc as @api or @internal. To make them explicitly APIs, or explicitly NOT APIs. Note that all policies around this are STILL not yet decided!
-						</aside>
-					</section>
-					<section data-background="#b5533c" data-transition="zoom">
-						<p>But in Drupal core…</p>
-						<dl>
-							<dt><code>@api</code></dt>
-							<dd>0 occurrences</dd>
-							<dt><code>@internal</code></dt>
-							<dd>53 occurrences</dd>
-						</dl>
-						<p>99% "undocumented"<br>⇒ 99% considered API</p>
-						<aside class="notes">
-							Of course, if Drupal core isn't even really doing this, it's fair to assume Drupal contrib isn't doing this at all.
-						</aside>
 					</section>
 				</section>
 
