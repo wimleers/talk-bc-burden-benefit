@@ -39,7 +39,7 @@
 
 				<section>
 					<section id="learned">
-						<p>Things I learned <small>so I know slightly better what I do not know</small></p>
+						<p>Things I learned <small>so I know slightly better what I do not know 🤓</small></p>
 						<aside class="notes">
 							I'm mostly talking from the perspective of Drupal core. Drupal core has many APIs. It sets examples for contrib to follow. So this is primarily a talk about patterns in Drupal core. Still, I also bring up several concrete contrib examples, so this should be helpful to both core developers <em>and</em> those building lots of actual D8 projects.
 						</aside>
@@ -514,7 +514,7 @@ function drupal_set_message($message = NULL, $type = 'status', $repeat = FALSE) 
 				</section>
 
 				<section id="conclusion" data-background="#4d7e65" data-background-transition="zoom">
-					<blockquote>Functionality first, API later <br><small>or <code>@internal</code> first, <code>@api</code> later</small></blockquote>
+					<blockquote>Functionality first, API later <br><small>or mark <code>@internal</code> first, remove later</small></blockquote>
 					<blockquote>Prefer duplication over the wrong abstraction</blockquote>
 					<blockquote>Test 1)&nbsp;critical path, 2)&nbsp;edge cases, 3)&nbsp;<u>assumptions</u><br><small>(especially for APIs)</small></blockquote>
 					<p>🤐</p>
