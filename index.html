@@ -51,12 +51,16 @@
 						</aside>
 					</section>
 					<section>
-						Drupal &amp; d.o infrastructure
+						Drupal &amp; d.o infrastructure: from 🔎 to 🥳
+						<aside class="notes">
+							I did a talk similar to this one a few years ago, but back then there was no infrastructure in either Drupal itself nor on the drupal.org infrastructure related to this, that has changed quite a bit!
+						</aside>
 					</section>
 				</section>
 
 				<section>
 					<section id="in-a-nutshell">
+						<div style="position: fixed;transform:rotate(-30deg);-webkit-transform:rotate(-30deg);background-color:gray;padding:0.2em">2017</div>
 						<p><img src="img/drupal wordmark.svg" style="background:none;border:none;margin-bottom:-0.25em" height="50em"> can be used for anything!</p>
 						<div class="fragment">
 							<p>⬇</p>
@@ -87,16 +91,16 @@
 							In other words: everything continues to work after you update to the latest version. This is obviously a huge benefit to site builders, Drupal developers, agencies and so on: maintenance becomes trivial/cheap, and new capabilities can be opted into.
 						</aside>
 					</section>
-					<section>
+					<section id="bc-rel-evolvability">
 						<h3>Evolvability</h3>
 						<div class="fragment"><blockquote>Does this mean I can't ever fix mistakes from the past?</blockquote>😩</p>
 						<div class="fragment"><blockquote>Does this mean I need to support this code forever?</blockquote>🥺</p>
 					</section>
-					<section>
+					<section id="bc-rel-maintainability">
 						<h3>Maintainability</h3>
 						<div class="fragment"><blockquote>I can't possibly maintain this spaghetti code of backwards compatibility layers!</blockquote>🤯</div>
 					</section>
-					<section>
+					<section id="bc-the-feels">
 						😓
 						<aside class="notes">
 							Yay for BC, but … how!? This seems like a nightmare. Well, let's take a look!
@@ -168,8 +172,11 @@
 					</section>
 				</section>
 
-				<section data-background="#4d7e65" data-background-transition="zoom">
-					<section id="current-best-practice--api-providers">
+				<section>
+					<section id="current-best-practice">
+						<p>Current best practice?</p>
+					</section>
+					<section id="current-best-practice--api-providers" data-background="#4d7e65" data-background-transition="zoom">
 						<h3>API providers</h3>
 						<ol>
 							<li class="fragment">Don't break existing callers.</li>
@@ -190,7 +197,7 @@ function drupal_set_message($message = NULL, $type = 'status', $repeat = FALSE) 
   return $messenger->all();
 }</code></pre>
 					</section>
-					<section id="current-best-practice--api-consumers">
+					<section id="current-best-practice--api-consumers" data-background="#4d7e65" data-background-transition="zoom">
 						<h3>API consumers</h3>
 						<ol>
 							<li class="fragment">Get notified of deprecations in automated testing:
@@ -209,17 +216,17 @@ function drupal_set_message($message = NULL, $type = 'status', $repeat = FALSE) 
     }</code></pre></li>
 						</ol>
 					</section>
-					<section id="current-best-practice--api-consumers--example">
+					<section id="current-best-practice--api-consumers--example-testing">
 						<figure>
 							<img src="img/deprecation test failure.png">
 							<figcaption>Deprecation causing test failure.</figcaption>
 						</figure>
 					</section>
-					<section>
-						<p><a href="https://www.drupal.org/project/coding_standards/issues/3024461">#3024461</a>: <q style="quotes:initial">Adopt consistent deprecation format for core and contrib deprecation messages</q><br>⬇</p>
+					<section id="current-best-practice--api-consumers--example-static-analysis">
+						<p><a href="https://www.drupal.org/project/coding_standards/issues/3024461">#3024461</a>: <q style="quotes:initial">Consistent deprecation messages format</q><br>⬇</p>
 						<figure>
 							<img src="img/d9-readiness.png" height="400em" style="border:0;margin-top:0">
-							<figcaption><a href="https://www.drupal.org/project/upgrade_status">d.o/project/upgrade_status</a>!</small></figcaption>
+							<figcaption><a href="https://www.drupal.org/project/upgrade_status">d.o/project/upgrade_status</a></small></figcaption>
 						</figure>
 					</section>
 				</section>
