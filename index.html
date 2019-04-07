@@ -72,22 +72,36 @@
 						</div>
 					</section>
 					<section data-background="#4d7e65" data-background-transition="zoom">
+						<div style="position: fixed;transform:rotate(-30deg);-webkit-transform:rotate(-30deg);background-color:white;padding:0.2em;color:black">2019</div>
 						<p>We <em>have</em> gotten better! 🥳</p>
 					</section>
 				</section>
 
 
 				<section id="bc-benefit">
-					<p>BC = promise of updating without problems</p>
-					<p><small><a href="http://buytaert.net/making-drupal-upgrades-easy-forever">buytaert.net/making-drupal-upgrades-easy-forever</a></small></p>
-					
-					<ol>
-						<li class="fragment">Promise to not breaking existing callers.</li>
-						<li class="fragment">Notify existing callers of changed code.</li>
-					</ol>
-					<aside class="notes">
-						In other words: everything continues to work after you update to the latest version. This is obviously a huge benefit to site builders, Drupal developers, agencies and so on: maintenance becomes trivial/cheap, and new capabilities can be opted into.
-					</aside>
+					<section id="bc-definition">
+						<h3>Backwards compatibility</h3>
+						<div class="fragment"><blockquote>Promise of updating without things breaking</blockquote>🤩</div>
+						<p class="fragment"><a href="https://dri.es/making-drupal-upgrades-easy-forever">dri.es/making-drupal-upgrades-easy-forever</a></p>
+						<aside class="notes">
+							In other words: everything continues to work after you update to the latest version. This is obviously a huge benefit to site builders, Drupal developers, agencies and so on: maintenance becomes trivial/cheap, and new capabilities can be opted into.
+						</aside>
+					</section>
+					<section>
+						<h3>Evolvability</h3>
+						<div class="fragment"><blockquote>Does this mean I can't ever fix mistakes from the past?</blockquote>😩</p>
+						<div class="fragment"><blockquote>Does this mean I need to support this code forever?</blockquote>🥺</p>
+					</section>
+					<section>
+						<h3>Maintainability</h3>
+						<div class="fragment"><blockquote>I can't possibly maintain this spaghetti code of backwards compatibility layers!</blockquote>🤯</div>
+					</section>
+					<section>
+						😓
+						<aside class="notes">
+							Yay for BC, but … how!? This seems like a nightmare. Well, let's take a look!
+						</aside>
+					</section>
 				</section>
 
 				<section id="bc-policy">
@@ -124,11 +138,11 @@
 					<section data-background="#4d7e65" data-background-transition="zoom">
 						<div style="position: fixed;transform:rotate(-30deg);-webkit-transform:rotate(-30deg);background-color:white;padding:0.2em;color:black">2019</div>
 						<ol style="width: 70%">
-							<li>More code considered "internal APIs"</li>
+							<li>More code considered "internal APIs" <small class="fragment">+ <del>53</del> <ins>711</ins> <code>@internal</code> occurrences</small></li>
 							<li class="fragment"><blockquote style="width: 100%">For public APIs, the deprecation process is a is a requirement; <u class="fragment">for internal APIs, we provide BC and deprecation where possible</u>, <span class="fragment">but might make breaking changes in situations where BC is not possible or has negative consequences</span>.</blockquote></li>
 						</ol>
 						<aside class="notes">
-							We now have a workable process, that still leaves a burden, but with clear rules, and for good reasons. Even for "internal" APIs best-effort BC must be provided.
+							We now have a workable process, that still leaves a burden, but with clear rules, and for good reasons. Even for "internal" APIs best-effort BC must be provided. We don't use the "@api" annotation; unless explicitly marked "@internal", code is now usually considered a public API, with some exceptions, such as controllers, forms, plugins.
 						</aside>
 					</section>
 				</section>
@@ -151,6 +165,55 @@
 						<aside class="notes">
 							<a href="https://www.drupal.org/node/2562903/revisions/view/10168259/11328169">18 edits later</a>, it looks much better already! Progress!
 						</aside>
+					</section>
+				</section>
+
+				<section data-background="#4d7e65" data-background-transition="zoom">
+					<section id="current-best-practice--api-providers">
+						<h3>API providers</h3>
+						<ol>
+							<li class="fragment">Don't break existing callers.</li>
+							<li class="fragment">Notify existing callers of changed code.</li>
+						</ol>
+						<pre class="fragment"><code>/**
+ * Sets a message to display to the user.
+…
+ * @deprecated in Drupal 8.5.0 and will be removed before Drupal 9.0.0.
+ *   Use \Drupal\Core\Messenger\MessengerInterface::addMessage() instead.
+ */
+function drupal_set_message($message = NULL, $type = 'status', $repeat = FALSE) {
+  @trigger_error('drupal_set_message() is deprecated in Drupal 8.5.0 and will be removed before Drupal 9.0.0. Use \Drupal\Core\Messenger\MessengerInterface::addMessage() instead. See https://www.drupal.org/node/2774931', E_USER_DEPRECATED);
+  $messenger = \Drupal::messenger();
+  if (isset($message)) {
+    $messenger->addMessage($message, $type, $repeat);
+  }
+  return $messenger->all();
+}</code></pre>
+					</section>
+					<section id="current-best-practice--api-consumers">
+						<h3>API consumers</h3>
+						<ol>
+							<li class="fragment">Get notified of deprecations in automated testing:
+								<pre><code class="lang-yaml">      run_tests.phpunit:
+        types: 'PHPUnit-Unit'
+        testgroups: '--all'
+        suppress-deprecations: false # 🥳
+        halt-on-fail: false</code></pre>
+								</li>
+							<li class="fragment">Update existing callers retaining BC:
+								<pre><code class="lang-php">    if (\Drupal::hasService('messenger')) {
+      \Drupal::messenger()->addMessage(…);
+    }
+    else {
+      drupal_set_message(…);
+    }</code></pre></li>
+						</ol>
+					</section>
+					<section id="current-best-practice--api-consumers--example">
+						<figure>
+							<img src="img/deprecation test failure.png">
+							<figcaption>Deprecation causing test failure.</figcaption>
+						</figure>
 					</section>
 					<section>
 						<p><a href="https://www.drupal.org/project/coding_standards/issues/3024461">#3024461</a>: <q style="quotes:initial">Adopt consistent deprecation format for core and contrib deprecation messages</q><br>⬇</p>
