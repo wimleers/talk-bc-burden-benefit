@@ -44,12 +44,6 @@
 							I'm mostly talking from the perspective of Drupal core. Drupal core has many APIs. It sets examples for contrib to follow. So this is primarily a talk about patterns in Drupal core. Still, I also bring up several concrete contrib examples, so this should be helpful to both core developers <em>and</em> those building lots of actual D8 projects.
 						</aside>
 					</section>
-					<section id="blame-me">
-						<p>I'm responsible for the 👍 &amp; 👎.</p>
-						<aside class="notes">
-							Pretty much all examples you're about to see are in Drupal core components and Drupal contrib projects I maintain. Both the wins and the fails.
-						</aside>
-					</section>
 					<section>
 						Drupal &amp; d.o infrastructure: from 🔎 to 🥳
 						<aside class="notes">
@@ -230,9 +224,9 @@ function drupal_set_message($message = NULL, $type = 'status', $repeat = FALSE) 
 						</figure>
 					</section>
 				</section>
-				
-				<section id="challenges">
-					<p>Challenges</p>
+
+				<section id="dangers" data-background-image="img/gif/duplo-train.gif">
+					<h3>Dangers</h3>
 				</section>
 
 				<section>
@@ -260,18 +254,15 @@ function drupal_set_message($message = NULL, $type = 'status', $repeat = FALSE) 
 						<p>Drupal has 3 types of APIs</p>
 						<dl>
 							<dt>Explicit APIs</dt>
-							<dd>hooks, plugins, tagged services</dd>
+							<dd>hooks, plugin types, tagged services</dd>
 							<dt>Implicit APIs</dt>
 							<dd>markup structure, render array structure, call order <small>(weights, priorities)</small></dd>
 							<dt>Accidental APIs</dt>
 							<dd>many <small>(most?)</small> interfaces (and even classes!)</dd>
 						</dl>
 					</section>
-				</section>
-
-				<section>
 					<section id="compare">
-						<h3>APIs elsewhere?</h3>
+						<p>Elsewhere?</p>
 						<aside class="notes">
 							Is Drupal really doing this differently compared to other CMS/CMF software?
 						</aside>
@@ -309,6 +300,10 @@ function drupal_set_message($message = NULL, $type = 'status', $repeat = FALSE) 
 						<aside class="notes">
 							This is what Drupal 8 did in the years 2012, 2013 and 2014. It's what contrib has also been doing to a large extent.
 						</aside>
+					</section>
+					<section>
+						<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">- Clients don&#39;t see any benefit in spending money on a complete re-platforming - the changes are too big to be considered just an &quot;upgrade&quot;<br>- All levels of developer are finding D8 incomprehensible because the API surface is too large, with too many options and missing/poor docs</p>&mdash; Sally Young (@justafish) <a href="https://twitter.com/justafish/status/1113408618953682944?ref_src=twsrc%5Etfw">April 3, 2019</a></blockquote>
+						<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 					</section>
 					<section id="underengineered-accidental-api-consequences">
 						<h4>Example</h4>
@@ -460,38 +455,8 @@ function drupal_set_message($message = NULL, $type = 'status', $repeat = FALSE) 
 				</section>
 
 				<section>
-					<section data-background-image="img/gif/duplo-train.gif">
-						<h3>Extreme one end</h3>
-						<p>REST + Serialization</p>
-					</section>
-					<section>
-						<p>REST in Drupal 8.0.0</p>
-						<ul>
-							<li>Only thin happy path test coverage </li>
-							<li>Slightest mistake ⇒ incomprehensible errors 😩😨</li>
-					</section>
-					<section>
-						<p>😵 "serialization gaps" 😵</p>
-						<ul>
-							<li><a href="https://www.drupal.org/node/2751325">#2751325</a>: All serialized values are strings, should be integers/booleans when appropriate</li>
-							<li><a href="https://www.drupal.org/node/2543726">#2543726</a>: Expose $term->parent in serialized taxonomy terms</li>
-							<li>… 6 more in <a href="https://www.drupal.org/node/2852860">#2852860</a>.</li>
-						</ul>
-						<blockquote class="fragment">Response === API ⇒ extreme care</blockquote>
-						<aside class="notes">
-							The API is not clearly delineated, nor can it be. This is a BC nightmare.
-						</aside>
-					</section>
-					<section data-background="#4d7e65" data-background-transition="zoom">
-						<blockquote>When API surface is great, test coverage must be greater</blockquote>
-						<p><em>and</em></p>
-						<blockquote>Clearly define what is an API (and hence BC guaranteed)</blockquote>
-					</section>
-				</section>
-
-				<section>
 					<section data-background-image="img/gif/lego-strandbeest.gif">
-						<h3>Extreme other end</h3>
+						<h3>Functionality-only modules</h3>
 						<p>BigPipe + Dynamic Page Cache</p>
 					</section>
 					<section>
