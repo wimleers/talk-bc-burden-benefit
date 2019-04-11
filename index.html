@@ -4,7 +4,8 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>Backwards Compatibility: Burden and Benefit </title>
+		<title>Backwards Compatibility 🆚 Evolvability 🆚 Maintainability
+</title>
 
 		<link rel="stylesheet" href="src/reveal.js/css/reveal.css">
 		<link rel="stylesheet" href="src/reveal.js/css/theme/black.css">
@@ -41,7 +42,7 @@
 					<section id="learned">
 						<p>Things I learned <small>so I know slightly better what I do not know 🤓</small></p>
 						<aside class="notes">
-							I'm mostly talking from the perspective of Drupal core. Drupal core has many APIs. It sets examples for contrib to follow. So this is primarily a talk about patterns in Drupal core. Still, I also bring up several concrete contrib examples, so this should be helpful to both core developers <em>and</em> those building lots of actual D8 projects.
+							This is talking from the perspective of Drupal core, its many APIs, how it impacts contrib modules and concrete sites.
 						</aside>
 					</section>
 					<section>
@@ -88,7 +89,7 @@
 					<section id="bc-rel-evolvability">
 						<h3>Evolvability</h3>
 						<div class="fragment"><blockquote>Does this mean I can't ever fix mistakes from the past?</blockquote>😩</p>
-						<div class="fragment"><blockquote>Does this mean I need to support this code forever?</blockquote>🥺</p>
+						<div class="fragment"><blockquote>Does this mean I can never do this cool thing?</blockquote>🥺</p>
 					</section>
 					<section id="bc-rel-maintainability">
 						<h3>Maintainability</h3>
@@ -136,7 +137,7 @@
 					<section data-background="#4d7e65" data-background-transition="zoom">
 						<div style="position: fixed;transform:rotate(-30deg);-webkit-transform:rotate(-30deg);background-color:white;padding:0.2em;color:black">2019</div>
 						<ol style="width: 70%">
-							<li>More code considered "internal APIs" <small class="fragment">+ <del>53</del> <ins>711</ins> <code>@internal</code> occurrences</small></li>
+							<li>More code considered "internal APIs" <small class="fragment">and <del>53</del> <ins>711</ins> <code>@internal</code> occurrences</small></li>
 							<li class="fragment"><blockquote style="width: 100%">For public APIs, the deprecation process is a is a requirement; <u class="fragment">for internal APIs, we provide BC and deprecation where possible</u>, <span class="fragment">but might make breaking changes in situations where BC is not possible or has negative consequences</span>.</blockquote></li>
 						</ol>
 						<aside class="notes">
@@ -161,7 +162,7 @@
 						<p>Two years later:</p>
 						<img src="img/d8-deprecation-policy-2019-03.png" height="500em" style="border:0">
 						<aside class="notes">
-							<a href="https://www.drupal.org/node/2562903/revisions/view/10168259/11328169">18 edits later</a>, it looks much better already! Progress!
+							We now actually have an official deprecation policy!
 						</aside>
 					</section>
 				</section>
@@ -261,18 +262,6 @@ function drupal_set_message($message = NULL, $type = 'status', $repeat = FALSE) 
 							<dd>many <small>(most?)</small> interfaces (and even classes!)</dd>
 						</dl>
 					</section>
-					<section id="compare">
-						<p>Elsewhere?</p>
-						<aside class="notes">
-							Is Drupal really doing this differently compared to other CMS/CMF software?
-						</aside>
-					</section>
-					<section id="compare-wordpress">
-						<img src="img/compare-apis/WordPress.png" height="600em" alt="Screenshot listing WordPress APIs">
-					</section>
-					<section id="compare-django">
-						<img src="img/compare-apis/Django.png" height="600em" alt="Screenshot listing Django APIs">
-					</section>
 					<section data-background="#b5533c" data-background-transition="zoom">
 						<p>The API assumption</p>
 						<ul>
@@ -321,7 +310,7 @@ function drupal_set_message($message = NULL, $type = 'status', $repeat = FALSE) 
 
  }
 </code></pre>
-						<p><small>(Introduced by yours truly in <q><a href="https://www.drupal.org/node/1824500">#1824500</a>: In-place editing for Fields</q> on Dec 21, 2012.<br>Suffering the consequences &gt;4 years later.)</small></p>
+						<p><small>(Introduced by yours truly in <q><a href="https://www.drupal.org/node/1824500">#1824500</a>: In-place editing for Fields</q> on Dec 21, 2012.<br>Suffering the consequences many years later.)</small></p>
 						<aside class="notes">
 							This is just a bugfix. But because we made this into an API, it's also a BC break. So now instead of just fixing the bug, we must not only update this accidental API, we must also add a BC layer that is supported until Drupal 9.0.0. This one is so trivial it won't need test coverage, but usually we then also require test coverage to ensure BC is not broken.
 						</aside>
@@ -462,14 +451,7 @@ function drupal_set_message($message = NULL, $type = 'status', $repeat = FALSE) 
 					<section>
 						<figure>
 							<img src="img/extremes/dynamic_page_cache.png">
-							<figcaption><small>1 task + 3 minor (clean-up) bugs + 1 support request.<br>5 issues total for millions of responses accelerated!</small></figcaption>
-						</figure>
-					</section>
-					<section>
-						<figure>
-							<img src="img/extremes/big_pipe.png">
-							<figcaption><small>Explicitly functionality, not API. <code>@internal</code> all the things!<br>
-							Handful of bugs over the course of a year. 0 bugs last 6 months.</small></figcaption>
+							<figcaption><small>5 issues in 2017, 13 in total by 2019.<br>For millions of responses accelerated!</small></figcaption>
 						</figure>
 					</section>
 					<section data-background="#4d7e65" data-background-transition="zoom">
@@ -483,7 +465,7 @@ function drupal_set_message($message = NULL, $type = 'status', $repeat = FALSE) 
 					<blockquote>Prefer duplication over the wrong abstraction</blockquote>
 					<blockquote>Test 1)&nbsp;critical path, 2)&nbsp;edge cases, 3)&nbsp;<u>assumptions</u><br><small>(especially for APIs)</small></blockquote>
 					<p>🤐</p>
-					<p><a href="http://wimleers.com/talk/bc-burden-benefit">wimleers.com/talk/bc-burden-benefit</a></p>
+					<p><a href="https://wimleers.com/talk/bc-evolvability-maintainability">wimleers.com/talk/bc-evolvability-maintainability</a></p>
 					<aside class="notes">
 						1) Start with providing the functionality that works for the 80%.<br>
 						2) Add API when confident about design, and sufficient demand. With demand but not confidence, insist on duplication.<br>
